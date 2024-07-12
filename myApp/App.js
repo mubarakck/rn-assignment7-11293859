@@ -1,20 +1,13 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
+import Navigator from './components/Navigator';
 
 const App = () => {
   return (
-    <View style={styles.first}>
-      <Text>App</Text>
-    </View>
+    
+<Navigator />
+
   )
 }
 
-export default App
-
-const styles = StyleSheet.create({
-first :{
-alignContent: 'center',
-justifyContent: 'center',
-flex: 1,
-},
-})
+export default App;

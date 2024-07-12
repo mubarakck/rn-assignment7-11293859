@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, StyleSheet, FlatList, Dimensions } from 'react-native';
+import { View, Text, Image, StyleSheet, FlatList, Dimensions, TouchableOpacity } from 'react-native';
 import axios from 'axios';
+import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const numColumns = 2; // Number of columns
 
 const ProductList = () => {
   const [products, setProducts] = useState([]);
+  const navigation = useNavigation();
 
   useEffect(() => {
     axios.get('https://fakestoreapi.com/products')
@@ -17,11 +20,28 @@ const ProductList = () => {
       });
   }, []);
 
+  const addToCart = async (product) => {
+    try {
+      const cart = await AsyncStorage.getItem('cart');
+      let cartItems = cart ? JSON.parse(cart) : [];
+      cartItems.push(product);
+      await AsyncStorage.setItem('cart', JSON.stringify(cartItems));
+      alert('Product added to cart');
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const renderProduct = ({ item }) => (
     <View style={styles.productContainer}>
-      <Image source={{ uri: item.image }} style={styles.productImage} />
+      <TouchableOpacity onPress={() => navigation.navigate('ProductDetailScreen', { product: item })}>
+        <Image source={{ uri: item.image }} style={styles.productImage} />
+      </TouchableOpacity>
       <Text style={styles.productTitle}>{item.title}</Text>
       <Text style={styles.productPrice}>${item.price}</Text>
+      <TouchableOpacity style={styles.addToCartButton} onPress={() => addToCart(item)}>
+        <Image source={require('../assets/add_circle.png')} style={styles.addToCartIcon} />
+      </TouchableOpacity>
     </View>
   );
 
@@ -64,6 +84,18 @@ const styles = StyleSheet.create({
     marginTop: 5,
     fontSize: 14,
     color: '#888',
+  },
+  addToCartButton: {
+    position: 'absolute',
+    bottom: 10,
+    right: 10,
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    borderRadius: 20,
+    padding: 5,
+  },
+  addToCartIcon: {
+    width: 24,
+    height: 24,
   },
 });
 
